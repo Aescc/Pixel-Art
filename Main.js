@@ -151,8 +151,8 @@ function Draw()
 	{
 		outlineColor = "#F00";
 	}
-	Rect( drawX,drawY,1,100,outlineColor );
-	Rect( drawX,drawY,100,1,outlineColor );
+	Rect( drawX - 1,drawY,1,100,outlineColor );
+	Rect( drawX,drawY - 1,100,1,outlineColor );
 	Rect( drawX + 100,drawY,1,100,outlineColor );
 	Rect( drawX,drawY + 100,100,1,outlineColor );
 }
