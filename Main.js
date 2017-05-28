@@ -82,6 +82,7 @@ function Init()
 	exportContext.webkitImageSmoothingEnabled = false;
 	exportContext.mozImageSmoothingEnabled = false;
 	exportContext.imageSmoothingEnabled = false;
+	document.getElementById( "colorPicker" ).value = "#00FFFF";
 	console.log( "Version " + version + " has been loaded successfully!" );
 }
 
