@@ -97,6 +97,10 @@ function Update()
 	{
 		SetErasing( false );
 	}
+	if( keyMap[73] )
+	{
+		IdentifyColor();
+	}
 }
 
 function Draw()
@@ -173,4 +177,20 @@ function SetErasing( value )
 	{
 		erasing = false;
 	}
+}
+
+function IdentifyColor()
+{
+	var drawX = Math.floor( mouse.x );
+	var drawY = Math.floor( mouse.y );
+	while( drawX % 100 != 0 )
+	{
+		--drawX;
+	}
+	while( drawY % 100 != 0 )
+	{
+		--drawY;
+	}
+	globalColor = colors[drawX / 100][drawY / 100];
+	document.getElementById( "colorPicker" ).value = globalColor;
 }
