@@ -42,6 +42,12 @@ const colorsORIG =
 
 // Objects
 var mouse = { x: 0,y: 0 };
+var tools =
+{
+	brush:		true,
+	eraser:		false,
+	identifier:	false
+}
 
 window.onload = function()
 {
@@ -102,15 +108,18 @@ function Update()
 	// Update things here
 	if( keyMap[69] )
 	{
-		SetErasing( true );
+		// SetErasing( true );
+		SetTool( "eraser" );
 	}
 	if( keyMap[66] )
 	{
-		SetErasing( false );
+		// SetErasing( false );
+		SetTool( "brush" );
 	}
 	if( keyMap[73] )
 	{
-		IdentifyColor();
+		// IdentifyColor();
+		SetTool( "identifier" );
 	}
 }
 
@@ -132,6 +141,21 @@ function Draw()
 	if( dragging )
 	{
 		// Rect( drawX,drawY,100,100,"#0FF" );
+		if( tools.brush )
+		{
+			colors[drawX / 100][drawY / 100] = globalColor;
+			exportContext.fillStyle = globalColor;
+			exportContext.fillRect( drawX / 100,drawY / 100,1,1 );
+		}
+		else if( tools.eraser )
+		{
+			colors[drawX / 100][drawY / 100] = colorsORIG[drawX / 100][drawY / 100];
+		}
+		else if( tools.identifier )
+		{
+			IdentifyColor();
+		}
+		/*
 		if( !erasing )
 		{
 			colors[drawX / 100][drawY / 100] = globalColor;
@@ -139,6 +163,7 @@ function Draw()
 		else
 		{
 			colors[drawX / 100][drawY / 100] = colorsORIG[drawX / 100][drawY / 100];
+			exportContext.clearRect( drawX / 100,drawY / 100,1,1 );
 		}
 		if( !erasing )
 		{
@@ -149,6 +174,7 @@ function Draw()
 		{
 			exportContext.clearRect( drawX / 100,drawY / 100,1,1 );
 		}
+		*/
 	}
 	for( var i = 0; i < colors.length; ++i )
 	{
@@ -158,14 +184,30 @@ function Draw()
 		}
 	}
 	var outlineColor = "#0FF";
+	if( tools.brush )
+	{
+		outlineColor = "#0FF";
+	}
+	else if( tools.eraser )
+	{
+		outlineColor = "#F00";
+	}
+	else if( tools.identifier )
+	{
+		outlineColor = "#0F0";
+	}
+	/*
+	var outlineColor = "#0FF";
 	if( erasing )
 	{
 		outlineColor = "#F00";
 	}
-	Rect( drawX - 1,drawY,1,100,outlineColor );
-	Rect( drawX,drawY - 1,100,1,outlineColor );
-	Rect( drawX + 100,drawY,1,100,outlineColor );
-	Rect( drawX,drawY + 100,100,1,outlineColor );
+	*/
+	const offset = 3;
+	Rect( drawX - offset,drawY,offset,100,outlineColor );
+	Rect( drawX,drawY - offset,100,offset,outlineColor );
+	Rect( drawX + 100,drawY,offset,100,outlineColor );
+	Rect( drawX,drawY + 100,100,offset,outlineColor );
 }
 
 function DownloadImage()
@@ -187,6 +229,25 @@ function SetErasing( value )
 	else
 	{
 		erasing = false;
+	}
+}
+
+function SetTool( tool )
+{
+	tools.brush = false;
+	tools.eraser = false;
+	tools.identifier = false;
+	if( tool === "brush" )
+	{
+		tools.brush = true;
+	}
+	else if( tool === "eraser" )
+	{
+		tools.eraser = true;
+	}
+	else if( tool === "identifier" )
+	{
+		tools.identifier = true;
 	}
 }
 
