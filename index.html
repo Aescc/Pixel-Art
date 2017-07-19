@@ -7,11 +7,14 @@
 	<canvas id="gc" width="800" height="800"></canvas>
 	<canvas id="exportCanvas" width="8" height="8" style="display:NONE"></canvas>
 	<input type="color" id="colorPicker" style="float:RIGHT">
-	<input type="text" id="imageName" style="float:RIGHT" value="Image">
+	<input type="text" id="imageName" style="float:RIGHT" placeholder="Image Name">
 	<button onclick="javascript:DownloadImage()" style="float:RIGHT">Download</button>
 	<button onclick="javascript:SetErasing( true )" style="float:RIGHT">[E]rase</button>
 	<button onclick="javascript:SetErasing( false )" style="float:RIGHT">[B]rush</button>
 	<button onclick="javascript:IdentifyColor()" style="float:RIGHT">[I]dentify</button>
+	
+	<div id="canvasSize" style="display:NONE">8</div>
+	
 	<script src="Framework.js"></script>
 	<!-- \/ User Scripts \/ -->
 	<!--

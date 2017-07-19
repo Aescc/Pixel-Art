@@ -8,35 +8,38 @@ const version = "v1.0 or something";
 var globalColor = "#FFFFFF";
 
 // Numbers
+const NUM_PIXELS = parseInt( document.getElementById( "canvasSize" ).innerHTML );
+const OFFSET = canvas.width / NUM_PIXELS;
+var audioTimer = 0;
+var TIME_MAX = 10;
 
 // Booleans
 var dragging = false;
 var erasing = false;
+var timingAudio = false;
 
 // Arrays
 var keyMap = [];
-var colors =
-[
-	[ "#fff","#777","#fff","#777","#fff","#777","#fff","#777" ],
-	[ "#777","#fff","#777","#fff","#777","#fff","#777","#fff" ],
-	[ "#fff","#777","#fff","#777","#fff","#777","#fff","#777" ],
-	[ "#777","#fff","#777","#fff","#777","#fff","#777","#fff" ],
-	[ "#fff","#777","#fff","#777","#fff","#777","#fff","#777" ],
-	[ "#777","#fff","#777","#fff","#777","#fff","#777","#fff" ],
-	[ "#fff","#777","#fff","#777","#fff","#777","#fff","#777" ],
-	[ "#777","#fff","#777","#fff","#777","#fff","#777","#fff" ]
-];
-const colorsORIG =
-[
-	[ "#fff","#777","#fff","#777","#fff","#777","#fff","#777" ],
-	[ "#777","#fff","#777","#fff","#777","#fff","#777","#fff" ],
-	[ "#fff","#777","#fff","#777","#fff","#777","#fff","#777" ],
-	[ "#777","#fff","#777","#fff","#777","#fff","#777","#fff" ],
-	[ "#fff","#777","#fff","#777","#fff","#777","#fff","#777" ],
-	[ "#777","#fff","#777","#fff","#777","#fff","#777","#fff" ],
-	[ "#fff","#777","#fff","#777","#fff","#777","#fff","#777" ],
-	[ "#777","#fff","#777","#fff","#777","#fff","#777","#fff" ]
-];
+var colors = [];
+var colorsORIG = [];
+for( var i = 0; i < NUM_PIXELS; ++i )
+{
+	colors    [i] = [];
+	colorsORIG[i] = [];
+	for( var j = 0; j < NUM_PIXELS; ++j )
+	{
+		if( i % 2 == j % 2 )
+		{
+			colors    [i][j] = "#FFF";
+			colorsORIG[i][j] = "#FFF";
+		}
+		else
+		{
+			colors    [i][j] = "#777";
+			colorsORIG[i][j] = "#777";
+		}
+	}
+}
 
 // Objects
 var mouse = { x: 0,y: 0 };
@@ -46,6 +49,8 @@ var tools =
 	eraser:		false,
 	identifier:	false
 }
+
+// Audio
 
 window.onload = function()
 {
@@ -128,11 +133,11 @@ function Draw()
 	// Rect( 0,0,canvas.width,canvas.height,"#000" );
 	var drawX = Math.floor( mouse.x );
 	var drawY = Math.floor( mouse.y );
-	while( drawX % 100 != 0 )
+	while( drawX % OFFSET != 0 )
 	{
 		--drawX;
 	}
-	while( drawY % 100 != 0 )
+	while( drawY % OFFSET != 0 )
 	{
 		--drawY;
 	}
@@ -141,47 +146,29 @@ function Draw()
 		// Rect( drawX,drawY,100,100,"#0FF" );
 		if( tools.brush )
 		{
-			colors[drawX / 100][drawY / 100] = globalColor;
+			colors[drawY / OFFSET][drawX / OFFSET] = globalColor;
 			exportContext.fillStyle = globalColor;
-			exportContext.fillRect( drawX / 100,drawY / 100,1,1 );
+			exportContext.fillRect( drawX / OFFSET,drawY / OFFSET,1,1 );
 		}
 		else if( tools.eraser )
 		{
-			colors[drawX / 100][drawY / 100] = colorsORIG[drawX / 100][drawY / 100];
+			colors[drawY / OFFSET][drawX / OFFSET] = colorsORIG[drawY / OFFSET][drawX / OFFSET];
 		}
 		else if( tools.identifier )
 		{
 			IdentifyColor();
 		}
-		/*
-		if( !erasing )
-		{
-			colors[drawX / 100][drawY / 100] = globalColor;
-		}
-		else
-		{
-			colors[drawX / 100][drawY / 100] = colorsORIG[drawX / 100][drawY / 100];
-			exportContext.clearRect( drawX / 100,drawY / 100,1,1 );
-		}
-		if( !erasing )
-		{
-			exportContext.fillStyle = globalColor;
-			exportContext.fillRect( drawX / 100,drawY / 100,1,1 );
-		}
-		else
-		{
-			exportContext.clearRect( drawX / 100,drawY / 100,1,1 );
-		}
-		*/
 	}
 	for( var i = 0; i < colors.length; ++i )
 	{
 		for( var j = 0; j < colors[i].length; ++j )
 		{
-			Rect( j * 100,i * 100,100,100,colors[j][i] );
+			Rect( j * OFFSET,i * OFFSET,OFFSET,OFFSET,colors[i][j] );
 		}
 	}
+	
 	var outlineColor = "#0FF";
+	
 	if( tools.brush )
 	{
 		outlineColor = "#0FF";
@@ -194,18 +181,12 @@ function Draw()
 	{
 		outlineColor = "#0F0";
 	}
-	/*
-	var outlineColor = "#0FF";
-	if( erasing )
-	{
-		outlineColor = "#F00";
-	}
-	*/
+	
 	const offset = 3;
-	Rect( drawX - offset,drawY,offset,100,outlineColor );
-	Rect( drawX,drawY - offset,100,offset,outlineColor );
-	Rect( drawX + 100,drawY,offset,100,outlineColor );
-	Rect( drawX,drawY + 100,100,offset,outlineColor );
+	Rect( drawX - offset,drawY,offset,OFFSET,outlineColor );
+	Rect( drawX,drawY - offset,OFFSET,offset,outlineColor );
+	Rect( drawX + OFFSET,drawY,offset,OFFSET,outlineColor );
+	Rect( drawX,drawY + OFFSET,OFFSET,offset,outlineColor );
 }
 
 function DownloadImage()
@@ -253,14 +234,14 @@ function IdentifyColor()
 {
 	var drawX = Math.floor( mouse.x );
 	var drawY = Math.floor( mouse.y );
-	while( drawX % 100 != 0 )
+	while( drawX % OFFSET != 0 )
 	{
 		--drawX;
 	}
-	while( drawY % 100 != 0 )
+	while( drawY % OFFSET != 0 )
 	{
 		--drawY;
 	}
-	globalColor = colors[drawX / 100][drawY / 100];
+	globalColor = colors[drawX / OFFSET][drawY / OFFSET];
 	document.getElementById( "colorPicker" ).value = globalColor;
 }
